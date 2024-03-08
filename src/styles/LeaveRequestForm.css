@@ -1,0 +1,67 @@
+.leave-request-form {
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  height: 80%;
+  padding: 1rem;
+  justify-content: space-between;
+}
+
+.leave-request-form label {
+  display: flex;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.leave-request-form__select,
+.leave-request-form__input,
+.leave-request-form__textarea {
+  width: 50%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-bottom: 1rem;
+  font-size: 16px;
+}
+
+.leave-request-form__select {
+  height: 30px;
+}
+
+.leave-request-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.leave-request-form button[type="submit"] {
+  background-color: #337ab7;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.leave-request-form button[type="submit"]:hover {
+  background-color: #286090;
+}
+
+.leave-request-form button[type="submit"]:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* mobile media */
+@media (max-width: 768px) {
+  .leave-request-form button[type="submit"] {
+    width: 70%;
+  }
+  .leave-request-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+  }
+}

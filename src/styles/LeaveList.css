@@ -1,0 +1,37 @@
+.leave-list {
+  margin: 20px;
+}
+
+.leave-list h2 {
+  margin-bottom: 10px;
+}
+
+.leave-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.leave-list li {
+  margin-bottom: 5px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.leave-list span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.leave-list button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.leave-list button:hover {
+  background-color: #45a049;
+}
