@@ -46,7 +46,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
 
   useEffect(() => {
     validateForm();
-  }, [startDate, endDate, leaveType, reason, selectedUser]);
+  }, [startDate, endDate, leaveType, reason, selectedUser, duration]);
 
   // useEffect hook to call calculateDuration on change
   useEffect(() => {
