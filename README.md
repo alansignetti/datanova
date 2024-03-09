@@ -8,7 +8,7 @@ This project is the result of my participation in the Datanova challenge, where 
 - **MUI CSS:** MUI provides pre-built components and rapid styling capabilities, allowing for faster development and a consistent design language.
 - **Faker:** This library generates a massive amount of random data, making it ideal for load testing.
 
-This project was generated with React version 18.2.0 (or specify your actual version).
+This project was generated with React version 18.2.0.
 
 ## Task Details
 
@@ -51,4 +51,4 @@ To simulate real-world usage, 10,000 fake leave requests are generated using Fak
 
 Experience the application live here: [https://alansignetti.github.io/datanova/](https://alansignetti.github.io/datanova/)
 
-**Note:** Replace the placeholder React version with the actual version used in your project.
+
