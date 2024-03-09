@@ -11,28 +11,27 @@ import {
   FormHelperText,
   TextareaAutosize,
 } from "@mui/material";
+import { LeaveRequest } from "../interface/LeaveRequest";
 import dayjs from "dayjs";
-
-interface LeaveRequest {
-  id: number;
-  startDate: string;
-  endDate: string;
-  leaveType: string;
-  reason: string;
-  selectedUser: number;
-}
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface LeaveRequestFormProps {
   onSubmit: (data: LeaveRequest) => void;
+  onClose: () => void; // Add the onClose property
 }
 
-const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
+const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
+  onSubmit,
+  onClose,
+}) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [leaveType, setLeaveType] = useState<string>("");
   const [reason, setReason] = useState<string>("");
-
-  const [selectedUser, setSelectedUser] = useState<number>(0);
+  const [selectedUser, setSelectedUser] = useState<string>("");
   const [duration, setDuration] = useState(0);
   const [isValidForm, setIsValidForm] = useState<boolean>(true);
   const errorForm = {
@@ -72,11 +71,10 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
       startDate !== null &&
         endDate !== null &&
         leaveType !== "" &&
-        selectedUser !== 0 &&
+        selectedUser !== "" &&
         reason !== "" &&
         duration !== 0
     );
-    console.log("Es valido:" + isValidForm);
   };
 
   const calculateDuration = () => {
@@ -90,7 +88,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
   };
 
   const handleUserChange = (event: { target: { value: string } }) => {
-    setSelectedUser(parseInt(event.target.value, 10));
+    setSelectedUser(event.target.value);
   };
   const handleLeaveTypeChange = (event: { target: { value: string } }) => {
     setLeaveType(event.target.value);
@@ -136,14 +134,31 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
       // Only submit if no errors
       const newLeaveRequest: LeaveRequest = {
         id: 1,
-        startDate: startDate?.toISOString() || "",
-        endDate: endDate?.toISOString() || "",
+        startDate:
+          startDate?.toLocaleString("en-AU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }) || "",
+        endDate:
+          endDate?.toLocaleString("en-AU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }) || "",
+
         leaveType,
         reason,
         selectedUser,
+        numberOfDays: duration,
       };
       onSubmit(newLeaveRequest);
-      console.log("Solicitud de licencia enviada:", newLeaveRequest);
     } else {
       console.log("Invalid form submission:", newErrors); // Log errors for debugging
     }
@@ -230,10 +245,10 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
           className="leave-request-form__select"
           labelId="assigned-to-label"
           id="user"
-          value={String(selectedUser)}
+          value={selectedUser}
           onChange={handleUserChange}>
           {users.map((user) => (
-            <MenuItem key={user.id} value={user.id}>
+            <MenuItem key={user.id} value={user.name}>
               {user.name}
             </MenuItem>
           ))}
@@ -246,6 +261,9 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
       <label>Duration: {duration.toFixed(2)} days</label>
       <button type="submit" disabled={!isValidForm}>
         Submit Request
+      </button>
+      <button onClick={onClose} className="close">
+        Close
       </button>
     </form>
   );

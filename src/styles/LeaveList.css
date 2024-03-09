@@ -1,9 +1,20 @@
 .leave-list {
   margin: 20px;
+  z-index: 100;
+}
+
+.filter-inputs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.list-table {
+  margin: 10px 0;
 }
 
 .leave-list h2 {
-  margin-bottom: 10px;
+  margin: 0;
+  height: 50px;
 }
 
 .leave-list ul {
@@ -23,15 +34,16 @@
   margin-bottom: 5px;
 }
 
-.leave-list button {
+.leave-list-button {
   background-color: #4caf50;
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 20px;
 }
 
-.leave-list button:hover {
+.leave-list-button:hover {
   background-color: #45a049;
 }
