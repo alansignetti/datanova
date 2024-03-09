@@ -3,10 +3,10 @@ import leaveRequestsReducer from "./slices/leaveRequestSlice";
 import { preloadedState } from "../store/preloadedState";
 const users = [
   { id: 0, name: "-- Please Select User --" },
-  { id: 1, name: "Dale Pienaar" },
-  { id: 2, name: "Antony Puckey" },
+  { id: 1, name: "Alan Signetti" },
+  { id: 2, name: "Dale Pienaar" },
   { id: 3, name: "Joshua O'Dea" },
-  { id: 4, name: "Alan Signetti" },
+  { id: 4, name: "Antony Puckey" },
   { id: 5, name: "Mock 5" },
   { id: 6, name: "Mock 6" },
   { id: 7, name: "Mock 7" },

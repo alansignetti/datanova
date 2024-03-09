@@ -99,8 +99,8 @@ export const leaveRequestsSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      .addCase(addLeaveRequest.fulfilled, (state, action) => {})
-      .addCase(addLeaveRequest.rejected, (state, action) => {})
+      .addCase(addLeaveRequest.fulfilled, () => {})
+      .addCase(addLeaveRequest.rejected, () => {})
       .addCase(addLeaveRequestToStore, (state, action) => {
         state.leaveRequests.push(action.payload);
       })

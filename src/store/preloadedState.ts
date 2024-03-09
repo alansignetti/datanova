@@ -71,7 +71,7 @@ export const preloadedState = {
             endDate: generateRandomLeaveDate(false),
             leaveType: pickRandomLeaveType(),
             reason: faker.lorem.sentence(),
-            selectedUser: user.name, // Usar el nombre del usuario
+            selectedUser: user.name,
             numberOfDays: calculateLeaveDays(
               generateRandomLeaveDate(true),
               generateRandomLeaveDate(false)
@@ -80,6 +80,6 @@ export const preloadedState = {
         }
         return requests;
       })
-      .slice(0, 10000), // Ajustar el número total de solicitudes
+      .slice(0, 10000), // number of requests
   },
 };

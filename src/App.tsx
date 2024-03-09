@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import LeaveList from "./components/LeaveList";
 
 import { Provider } from "react-redux";

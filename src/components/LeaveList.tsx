@@ -150,7 +150,7 @@ const LeaveList: React.FC = () => {
   };
 
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     setPage(newPage);
@@ -212,11 +212,7 @@ const LeaveList: React.FC = () => {
                   </TableRow>
                 ) : (
                   filteredLeaveRequests.map((leaveRequest: LeaveRequest) => (
-                    <TableRow
-                      key={leaveRequest.requestId}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                      }}>
+                    <TableRow key={leaveRequest.requestId}>
                       <TableCell component="th" scope="row">
                         {leaveRequest.selectedUser}
                       </TableCell>
