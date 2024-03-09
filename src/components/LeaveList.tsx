@@ -5,6 +5,8 @@ import LeaveRequestForm from "./LeaveRequestForm";
 import { LeaveRequest } from "../interface/LeaveRequest";
 import { useSelector, useDispatch } from "react-redux";
 import { addLeaveRequest } from "../store/slices/leaveRequestSlice";
+import { updateLeaveRequest } from "../store/slices/leaveRequestSlice";
+
 import { AppDispatch, RootState } from "../store/store";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -21,18 +23,22 @@ import { TextField } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
+import EditIcon from "@mui/icons-material/Edit";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const LeaveList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [startDateFilter, setStartDateFilter] = useState<Date | null>(null);
   const [endDateFilter, setEndDateFilter] = useState<Date | null>(null);
-  const [selectedUserFilter, setSelectedUserFilter] = useState<string | null>(
-    null
-  );
+  const [editingLeaveRequest, setEditingLeaveRequest] =
+    useState<LeaveRequest | null>(null);
+
   const leaveRequests: LeaveRequest[] = useSelector<RootState>(
     (state) => state.leaveRequests.leaveRequests
   ) as LeaveRequest[];
@@ -44,18 +50,54 @@ const LeaveList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const toggleModal = () => {
+    setIsEditing(false);
+    setEditingLeaveRequest(null);
     setIsModalOpen(!isModalOpen);
+  };
+
+  const handleEditRequest = (leaveRequest: LeaveRequest) => {
+    setIsModalOpen(true);
+    setIsEditing(true);
+    setEditingLeaveRequest(leaveRequest);
   };
 
   const handleFormSubmit = async (data: LeaveRequest) => {
     try {
-      const response = await dispatch(addLeaveRequest(data));
+      const response: any = await dispatch(addLeaveRequest(data));
 
       if (response.payload) {
         // Success
         console.log("Form submitted successfully:", data);
 
         toast.success("Leave request submitted successfully!", {
+          position: "top-right",
+        });
+        setIsModalOpen(false);
+      } else {
+        // Error
+        console.error("Error:", response);
+        const errorMessage: string = response.error.message;
+        toast.error(errorMessage, {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      // Additional error handling for unexpected issues
+      toast.error("An unexpected error occurred. Please try again later.", {
+        position: "top-right",
+      });
+    }
+  };
+
+  const handleEditSubmit = async (data: LeaveRequest) => {
+    try {
+      const response: any = await dispatch(updateLeaveRequest(data));
+
+      if (response.payload) {
+        // Success
+        console.log("Form edited successfully:", data);
+
+        toast.success("Leave request edited successfully!", {
           position: "top-right",
         });
         setIsModalOpen(false);
@@ -96,8 +138,6 @@ const LeaveList: React.FC = () => {
                   label="Start Date"
                   value={startDateFilter}
                   onChange={(newValue: Date | null) => {
-                    console.log(Date.parse(newValue));
-                    console.log(Date.parse(leaveRequests[0].startDate));
                     setStartDateFilter(newValue);
                   }}
                 />
@@ -105,7 +145,6 @@ const LeaveList: React.FC = () => {
                   label="End Date"
                   value={endDateFilter}
                   onChange={(newValue: Date | null) => {
-                    console.log(newValue);
                     setEndDateFilter(newValue);
                   }}
                 />
@@ -122,6 +161,7 @@ const LeaveList: React.FC = () => {
                   <TableCell sx={{ fontWeight: 600 }}>Number of days</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Start Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>End Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -143,8 +183,7 @@ const LeaveList: React.FC = () => {
                       !endDate ||
                       new Date(leaveRequest.endDate).getTime() <=
                         endDate.getTime();
-                    console.log(leaveRequest.startDate);
-                    console.log(startDate);
+
                     return (
                       (isStartDateMatch &&
                         isEndDateMatch &&
@@ -160,7 +199,7 @@ const LeaveList: React.FC = () => {
                   })
                   .map((leaveRequest: LeaveRequest) => (
                     <TableRow
-                      key={leaveRequest.id}
+                      key={leaveRequest.requestId}
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
                       }}>
@@ -179,6 +218,12 @@ const LeaveList: React.FC = () => {
                           .tz("Australia/Brisbane")
                           .format("ddd, DD MMM YYYY HH:mm:ss")}
                       </TableCell>
+                      <TableCell>
+                        <EditIcon
+                          className="edit-icon"
+                          onClick={() => handleEditRequest(leaveRequest)}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
@@ -193,7 +238,13 @@ const LeaveList: React.FC = () => {
         Add New Leave Request
       </button>
       <ReactModal isOpen={isModalOpen} onRequestClose={toggleModal}>
-        <LeaveRequestForm onSubmit={handleFormSubmit} onClose={toggleModal} />
+        <LeaveRequestForm
+          onSubmit={handleFormSubmit}
+          onEdit={handleEditSubmit}
+          onClose={toggleModal}
+          initialValues={editingLeaveRequest as LeaveRequest}
+          isEditing={isEditing}
+        />
       </ReactModal>
       <ToastContainer />
     </div>

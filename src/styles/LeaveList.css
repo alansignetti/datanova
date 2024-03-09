@@ -47,3 +47,7 @@
 .leave-list-button:hover {
   background-color: #45a049;
 }
+
+.edit-icon {
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/LeaveRequestForm.css";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -13,27 +13,32 @@ import {
 } from "@mui/material";
 import { LeaveRequest } from "../interface/LeaveRequest";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 interface LeaveRequestFormProps {
   onSubmit: (data: LeaveRequest) => void;
-  onClose: () => void; // Add the onClose property
+  onEdit: (data: LeaveRequest) => void;
+  onClose: () => void;
+  isEditing?: boolean;
+  initialValues: LeaveRequest;
 }
 
 const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
+  isEditing = false,
   onSubmit,
+  onEdit,
   onClose,
+  initialValues,
 }) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [leaveType, setLeaveType] = useState<string>("");
   const [reason, setReason] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<string>("");
+  const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const [requestId, setRequestId] = useState<number>(0);
   const [duration, setDuration] = useState(0);
   const [isValidForm, setIsValidForm] = useState<boolean>(true);
+
   const errorForm = {
     startDate: "",
     endDate: "",
@@ -44,13 +49,28 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
   const [errors, setErrors] = useState(errorForm);
 
   useEffect(() => {
+    calculateDuration();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     validateForm();
   }, [startDate, endDate, leaveType, reason, selectedUser, duration]);
 
-  // useEffect hook to call calculateDuration on change
   useEffect(() => {
-    calculateDuration();
-  }, [endDate, startDate]);
+    if (isEditing) {
+      setLeaveType(initialValues.leaveType || "");
+      setReason(initialValues.reason || "");
+      setSelectedUser(initialValues.selectedUser || "");
+      setSelectedUserId(initialValues.selectedUserId || 0);
+      setRequestId(initialValues.requestId || 0);
+      initialValues.requestId || 0;
+      const startDateValue = new Date(initialValues.startDate);
+      const endDateValue = new Date(initialValues.endDate);
+      setStartDate(startDateValue);
+      setEndDate(endDateValue);
+      calculateDuration();
+    }
+  }, [initialValues]);
 
   const users = [
     { id: 0, name: "-- Please Select User --" },
@@ -73,7 +93,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
         leaveType !== "" &&
         selectedUser !== "" &&
         reason !== "" &&
-        duration !== 0
+        duration > 0
     );
   };
 
@@ -88,25 +108,28 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
   };
 
   const handleUserChange = (event: { target: { value: string } }) => {
-    setSelectedUser(event.target.value);
+    const user = users.find((user) => user.name === event.target.value);
+    setSelectedUser(user?.name || "");
+    setSelectedUserId(user?.id || 0);
   };
   const handleLeaveTypeChange = (event: { target: { value: string } }) => {
     setLeaveType(event.target.value);
   };
-  const handleEndDateChange = (newDate: Date | null) => {
+  const handleEndDateChange = (newDate: any | null) => {
     setEndDate(newDate);
   };
-  const handleStartDateChange = (newDate: Date | null) => {
+  const handleStartDateChange = (newDate: any | null) => {
     setStartDate(newDate);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     validateForm();
     errorHandler();
   };
 
-  const errorHandler = () => {
+  const errorHandler = async () => {
     const newErrors: {
       startDate?: string;
       endDate?: string;
@@ -132,33 +155,23 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
 
     if (Object.keys(newErrors).length === 0) {
       // Only submit if no errors
-      const newLeaveRequest: LeaveRequest = {
-        id: 1,
-        startDate:
-          startDate?.toLocaleString("en-AU", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }) || "",
-        endDate:
-          endDate?.toLocaleString("en-AU", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }) || "",
 
+      const newLeaveRequest: LeaveRequest = {
+        requestId: requestId,
+        selectedUserId: selectedUserId,
+        startDate: startDate ? startDate.toLocaleString() : "",
+        endDate: endDate ? endDate.toLocaleString() : "",
         leaveType,
         reason,
         selectedUser,
         numberOfDays: duration,
       };
-      onSubmit(newLeaveRequest);
+      if (isEditing) {
+        onEdit(newLeaveRequest);
+      } else {
+        newLeaveRequest.requestId = Date.now();
+        onSubmit(newLeaveRequest);
+      }
     } else {
       console.log("Invalid form submission:", newErrors); // Log errors for debugging
     }
@@ -175,9 +188,9 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
             className={`leave-request-form__input ${
               errors.startDate ? "error" : ""
             }`}
-            value={startDate}
+            value={dayjs(startDate)}
             onChange={(newValue) => handleStartDateChange(newValue)}
-            maxDateTime={endDate}
+            maxDateTime={dayjs(endDate)}
             slotProps={{
               textField: {
                 size: "small",
@@ -191,10 +204,10 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
             className={`leave-request-form__input ${
               errors.endDate ? "error" : ""
             }`}
-            value={endDate}
+            value={dayjs(endDate)}
             onChange={(newValue) => handleEndDateChange(newValue)}
-            defaultValue={startDate}
-            minDateTime={startDate}
+            defaultValue={dayjs(startDate)}
+            minDateTime={dayjs(startDate)}
             slotProps={{
               textField: {
                 size: "small",

@@ -16,7 +16,10 @@ export function doesOverlap(
 ): boolean {
   for (const existingRequest of existingRequests) {
     // Check for overlap based on start and end dates
-    if (newRequest.selectedUser == existingRequest.selectedUser) {
+    if (
+      newRequest.selectedUser == existingRequest.selectedUser &&
+      newRequest.requestId != existingRequest.requestId
+    ) {
       if (
         (newRequest.startDate < existingRequest.endDate &&
           newRequest.startDate >= existingRequest.startDate) ||
@@ -40,7 +43,6 @@ export const addLeaveRequest = createAsyncThunk(
       const existingRequests = state.leaveRequests.leaveRequests;
 
       if (doesOverlap(existingRequests, data)) {
-        // Throw custom error object directly
         throw new Error("Leave request overlaps with an existing one");
       }
       dispatch(addLeaveRequestToStore(data));
@@ -56,16 +58,60 @@ export const addLeaveRequestToStore = createAction<LeaveRequest>(
   "leaveRequests/addLeaveRequestToStore"
 );
 
+export const updateLeaveRequest = createAsyncThunk(
+  "leaveRequests/updateLeaveRequest",
+  async (updatedRequest: LeaveRequest, { getState, dispatch }) => {
+    try {
+      const state = getState() as RootState;
+      const existingRequests = state.leaveRequests.leaveRequests;
+
+      const existingRequest = existingRequests.find(
+        (request) => request.requestId === updatedRequest.requestId
+      );
+
+      if (!existingRequest) {
+        throw new Error("Leave request not found");
+      }
+
+      if (doesOverlap(existingRequests, updatedRequest)) {
+        throw new Error("Leave request overlaps with an existing one");
+      }
+
+      const updatedExistingRequest = { ...existingRequest, ...updatedRequest };
+
+      dispatch(updateLeaveRequestToStore(updatedExistingRequest));
+      return updatedRequest;
+    } catch (error: any) {
+      console.error(error.message);
+      throw error;
+    }
+  }
+);
+
+export const updateLeaveRequestToStore = createAction<LeaveRequest>(
+  "leaveRequests/updateLeaveRequestToStore"
+);
+
 export const leaveRequestsSlice = createSlice({
   name: "leaveRequests",
   initialState,
   reducers: {}, // No reducers needed for async thunk actions
   extraReducers: (builder) => {
     builder
+
       .addCase(addLeaveRequest.fulfilled, (state, action) => {})
       .addCase(addLeaveRequest.rejected, (state, action) => {})
       .addCase(addLeaveRequestToStore, (state, action) => {
         state.leaveRequests.push(action.payload);
+      })
+      //edit
+      .addCase(updateLeaveRequest.fulfilled, (state, action) => {
+        const index = state.leaveRequests.findIndex(
+          (request) => request.requestId === action.payload.requestId
+        );
+        if (index !== -1) {
+          state.leaveRequests[index] = action.payload;
+        }
       });
   },
 });
