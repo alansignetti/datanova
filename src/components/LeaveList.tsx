@@ -6,20 +6,23 @@ import { LeaveRequest } from "../interface/LeaveRequest";
 import { useSelector, useDispatch } from "react-redux";
 import { addLeaveRequest } from "../store/slices/leaveRequestSlice";
 import { updateLeaveRequest } from "../store/slices/leaveRequestSlice";
-
 import { AppDispatch, RootState } from "../store/store";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { TextField } from "@mui/material";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  TablePagination,
+} from "@mui/material";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
@@ -64,11 +67,7 @@ const LeaveList: React.FC = () => {
   const handleFormSubmit = async (data: LeaveRequest) => {
     try {
       const response: any = await dispatch(addLeaveRequest(data));
-
       if (response.payload) {
-        // Success
-        console.log("Form submitted successfully:", data);
-
         toast.success("Leave request submitted successfully!", {
           position: "top-right",
         });
@@ -95,8 +94,6 @@ const LeaveList: React.FC = () => {
 
       if (response.payload) {
         // Success
-        console.log("Form edited successfully:", data);
-
         toast.success("Leave request edited successfully!", {
           position: "top-right",
         });
@@ -111,10 +108,52 @@ const LeaveList: React.FC = () => {
       }
     } catch (error) {
       // Additional error handling for unexpected issues
+      console.log(error);
       toast.error("An unexpected error occurred. Please try again later.", {
         position: "top-right",
       });
     }
+  };
+
+  const [page, setPage] = useState(0); // Page state for pagination
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const filteredLeaveRequests = leaveRequests
+    .filter((leaveRequest) => {
+      const lowerSearchQuery = searchQuery.toLowerCase();
+      const startDate = startDateFilter ? new Date(startDateFilter) : null;
+      const endDate = endDateFilter ? new Date(endDateFilter) : null;
+
+      const isStartDateMatch =
+        !startDate ||
+        new Date(leaveRequest.startDate).getTime() >= startDate.getTime();
+      const isEndDateMatch =
+        !endDate ||
+        new Date(leaveRequest.endDate).getTime() <= endDate.getTime();
+
+      return (
+        (isStartDateMatch &&
+          isEndDateMatch &&
+          leaveRequest.selectedUser.toLowerCase().includes(lowerSearchQuery)) ||
+        (isStartDateMatch &&
+          isEndDateMatch &&
+          leaveRequest.leaveType.toLowerCase().includes(lowerSearchQuery))
+      );
+    })
+    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+  };
+
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
   };
 
   return (
@@ -165,39 +204,14 @@ const LeaveList: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {leaveRequests
-                  .filter((leaveRequest) => {
-                    const lowerSearchQuery = searchQuery.toLowerCase();
-                    const startDate = startDateFilter
-                      ? new Date(startDateFilter)
-                      : null;
-                    const endDate = endDateFilter
-                      ? new Date(endDateFilter)
-                      : null;
-
-                    const isStartDateMatch =
-                      !startDate ||
-                      new Date(leaveRequest.startDate).getTime() >=
-                        startDate.getTime();
-                    const isEndDateMatch =
-                      !endDate ||
-                      new Date(leaveRequest.endDate).getTime() <=
-                        endDate.getTime();
-
-                    return (
-                      (isStartDateMatch &&
-                        isEndDateMatch &&
-                        leaveRequest.selectedUser
-                          .toLowerCase()
-                          .includes(lowerSearchQuery)) ||
-                      (isStartDateMatch &&
-                        isEndDateMatch &&
-                        leaveRequest.leaveType
-                          .toLowerCase()
-                          .includes(lowerSearchQuery))
-                    );
-                  })
-                  .map((leaveRequest: LeaveRequest) => (
+                {filteredLeaveRequests.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      No Leave Requests Found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredLeaveRequests.map((leaveRequest: LeaveRequest) => (
                     <TableRow
                       key={leaveRequest.requestId}
                       sx={{
@@ -225,9 +239,18 @@ const LeaveList: React.FC = () => {
                         />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))
+                )}
               </TableBody>
             </Table>
+            <TablePagination
+              component="div"
+              count={leaveRequests.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </TableContainer>
         </div>
       ) : (

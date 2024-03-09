@@ -78,12 +78,12 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
     { id: 2, name: "Antony Puckey" },
     { id: 3, name: "Joshua O'Dea" },
     { id: 4, name: "Alan Signetti" },
-    { id: 5, name: "Michael Brown" },
-    { id: 6, name: "William Martinez" },
-    { id: 7, name: "Sophia Anderson" },
-    { id: 8, name: "James Taylor" },
-    { id: 9, name: "Charlotte Thomas" },
-    { id: 10, name: "Daniel Hernandez" },
+    { id: 5, name: "Mock 5" },
+    { id: 6, name: "Mock 6" },
+    { id: 7, name: "Mock 7" },
+    { id: 8, name: "Mock 8" },
+    { id: 9, name: "Mock 9" },
+    { id: 10, name: "Mock 10" },
   ];
 
   const validateForm = () => {
