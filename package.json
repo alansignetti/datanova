@@ -6,7 +6,7 @@
   "homepage": "https://alansignetti.github.io/datanova",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alansignetti/datanova.git"
+    "url": "https://github.com/alansignetti/datanova"
   },
   "scripts": {
     "dev": "vite",
