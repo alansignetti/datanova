@@ -36,26 +36,6 @@ function pickRandomLeaveType() {
   const randomIndex = Math.floor(Math.random() * leaveTypes.length);
   return leaveTypes[randomIndex];
 }
-// export const preloadedState = {
-//   leaveRequests: {
-//     leaveRequests: users
-//       .slice(1)
-//       .map(() => ({
-//         requestId: Math.floor(Math.random() * 1000000000000),
-//         selectedUserId: Math.floor(Math.random() * 10) + 1,
-//         startDate: generateRandomLeaveDate(true),
-//         endDate: generateRandomLeaveDate(false),
-//         leaveType: pickRandomLeaveType(),
-//         reason: faker.lorem.sentence(),
-//         selectedUser: "Placeholder",
-//         numberOfDays: calculateLeaveDays(
-//           generateRandomLeaveDate(true),
-//           generateRandomLeaveDate(false)
-//         ),
-//       }))
-//       .slice(0, 30), // Generate 10,000 requests
-//   },
-// };
 
 export const preloadedState = {
   leaveRequests: {

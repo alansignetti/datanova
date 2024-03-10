@@ -154,7 +154,6 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
 
     if (Object.keys(newErrors).length === 0) {
       // Only submit if no errors
-
       const newLeaveRequest: LeaveRequest = {
         requestId: requestId,
         selectedUserId: selectedUserId,

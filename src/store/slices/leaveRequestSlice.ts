@@ -15,7 +15,7 @@ export function doesOverlap(
   newRequest: LeaveRequest
 ): boolean {
   for (const existingRequest of existingRequests) {
-    // Check for overlap based on start and end dates
+    // Check for overlap based on start and end dates for the same user and if it is not the same request, in case of edit
     if (
       newRequest.selectedUser == existingRequest.selectedUser &&
       newRequest.requestId != existingRequest.requestId
@@ -95,7 +95,7 @@ export const updateLeaveRequestToStore = createAction<LeaveRequest>(
 export const leaveRequestsSlice = createSlice({
   name: "leaveRequests",
   initialState,
-  reducers: {}, // No reducers needed for async thunk actions
+  reducers: {},
   extraReducers: (builder) => {
     builder
 

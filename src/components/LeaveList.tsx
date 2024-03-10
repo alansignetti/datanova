@@ -162,7 +162,7 @@ const LeaveList: React.FC = () => {
 
       {leaveRequests.length > 0 ? (
         <div className="list-table">
-          {!isModalOpen && ( // Only render the search bar when the modal is open
+          {!isModalOpen && ( // Only render the filters when the modal is close
             <div className="filter-inputs">
               <TextField
                 label="Search"
